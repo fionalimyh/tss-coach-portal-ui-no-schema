@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Portal Prototype Overview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 32px 24px; }
+  h1 { font-size: 28px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
+  .subtitle { font-size: 15px; color: #94a3b8; margin-bottom: 36px; }
+
+  .layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; max-width: 1100px; margin: 0 auto; }
+
+  /* Phone frame */
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .phone { width: 320px; background: #1e293b; border-radius: 36px; border: 3px solid #334155; padding: 16px 12px 12px; box-shadow: 0 24px 60px rgba(0,0,0,0.5); }
+  .phone-notch { width: 100px; height: 24px; background: #0f172a; border-radius: 12px; margin: 0 auto 12px; }
+  .phone-screen { background: #fff; border-radius: 24px; overflow: hidden; height: 580px; display: flex; flex-direction: column; }
+
+  /* App chrome */
+  .app-topbar { background: #0f172a; padding: 14px 16px 10px; display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0; }
+  .app-topbar .eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; }
+  .app-topbar h2 { font-size: 20px; font-weight: 700; color: #fff; margin-top: 2px; }
+  .alert-btn { background: #ef4444; color: #fff; border: none; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; }
+
+  /* Screen content */
+  .screen-body { flex: 1; overflow-y: auto; background: #f8fafc; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+
+  .welcome { background: #0f172a; border-radius: 16px; padding: 14px; color: #fff; }
+  .welcome .eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #fbbf24; margin-bottom: 4px; }
+  .welcome h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .welcome p { font-size: 12px; color: #94a3b8; margin-bottom: 10px; }
+  .btn-row { display: flex; gap: 6px; }
+  .btn-primary { background: #fbbf24; color: #0f172a; border: none; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; flex: 1; }
+  .btn-secondary { background: transparent; color: #fbbf24; border: 1px solid #334155; border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; }
+
+  .alert-card { background: #fef2f2; border: 2px solid #ef4444; border-radius: 12px; padding: 12px; }
+  .alert-card .eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #ef4444; margin-bottom: 4px; }
+  .alert-card h3 { font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+  .alert-card p { font-size: 11px; color: #64748b; }
+
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .metric { background: #fff; border-radius: 12px; padding: 10px; border: 1px solid #e2e8f0; }
+  .metric .eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; }
+  .metric .num { font-size: 28px; font-weight: 800; color: #0f172a; }
+  .metric p { font-size: 10px; color: #64748b; }
+
+  .class-card { background: #fff; border-radius: 12px; padding: 12px; border: 1px solid #e2e8f0; }
+  .class-card .eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; }
+  .class-card h3 { font-size: 14px; font-weight: 700; color: #0f172a; margin: 2px 0; }
+  .class-card p { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+  .badge-row { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+  .badge { font-size: 10px; padding: 2px 6px; border-radius: 20px; background: #e2e8f0; color: #475569; font-weight: 600; }
+  .badge.alert { background: #fee2e2; color: #dc2626; }
+  .badge.yellow { background: #fef9c3; color: #92400e; }
+  .mini-btns { display: flex; gap: 6px; }
+  .mini-btn { font-size: 11px; padding: 6px 10px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; }
+  .mini-btn.primary { background: #fbbf24; color: #0f172a; }
+  .mini-btn.secondary { background: #f1f5f9; color: #475569; }
+
+  /* Bottom nav */
+  .bottom-nav { background: #fff; border-top: 1px solid #e2e8f0; display: flex; flex-shrink: 0; }
+  .nav-item { flex: 1; padding: 8px 4px; text-align: center; font-size: 10px; font-weight: 600; color: #94a3b8; border: none; background: none; cursor: pointer; }
+  .nav-item.active { color: #0f172a; }
+  .nav-item.active::before { content: ''; display: block; width: 20px; height: 3px; background: #fbbf24; border-radius: 2px; margin: 0 auto 4px; }
+
+  /* Right panel */
+  .info-panel { display: flex; flex-direction: column; gap: 20px; }
+
+  .section-card { background: #1e293b; border-radius: 16px; padding: 20px; }
+  .section-card h3 { font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+  .section-card .desc { font-size: 13px; color: #64748b; margin-bottom: 16px; }
+
+  .screen-list { display: flex; flex-direction: column; gap: 6px; }
+  .screen-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; }
+  .screen-item.built { background: rgba(34,197,94,0.1); }
+  .screen-item.missing { background: rgba(251,191,36,0.08); }
+  .screen-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .screen-dot.built { background: #22c55e; }
+  .screen-dot.missing { background: #fbbf24; }
+  .screen-name { font-size: 12px; color: #e2e8f0; font-weight: 500; }
+  .screen-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: auto; font-weight: 600; }
+  .screen-tag.built { background: rgba(34,197,94,0.2); color: #22c55e; }
+  .screen-tag.missing { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 4px; }
+  .stat { background: #0f172a; border-radius: 10px; padding: 12px; text-align: center; }
+  .stat .num { font-size: 26px; font-weight: 800; }
+  .stat .num.green { color: #22c55e; }
+  .stat .num.yellow { color: #fbbf24; }
+  .stat .label { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+  .live-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.15); color: #22c55e; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 700; margin-top: 8px; }
+  .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .url-box { background: #0f172a; border-radius: 10px; padding: 12px 14px; font-family: monospace; font-size: 13px; color: #fbbf24; margin-top: 10px; word-break: break-all; }
+
+  .tab-pill-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+  .tab-pill { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: #0f172a; color: #94a3b8; font-weight: 600; }
+  .tab-pill.active { background: #fbbf24; color: #0f172a; }
+</style>
+</head>
+<body>
+
+<div style="max-width:1100px;margin:0 auto">
+  <h1>🏊 Swim Starter Coach Portal</h1>
+  <p class="subtitle">Mobile-first prototype — existing build overview &amp; what's next</p>
+
+  <div class="layout">
+
+    <!-- Phone mockup -->
+    <div class="phone-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="app-topbar">
+            <div>
+              <div class="eyebrow">Good morning</div>
+              <h2>Coach Ryan</h2>
+            </div>
+            <button class="alert-btn">⚡ Alert</button>
+          </div>
+          <div class="screen-body">
+            <div class="welcome">
+              <div class="eyebrow">Check-in Ready</div>
+              <h3>Welcome back, Coach Ryan.</h3>
+              <p>You have 4 classes today at Bishan Swimming Complex. Your first class starts at 9:00 AM.</p>
+              <div class="btn-row">
+                <button class="btn-primary">Check In</button>
+                <button class="btn-secondary">View Classes</button>
+              </div>
+            </div>
+
+            <div class="alert-card">
+              <div class="eyebrow">Urgent Alert</div>
+              <h3>⚡ Lightning alert is active at Bishan.</h3>
+              <p>Please stop water activity and move students to a sheltered area.</p>
+            </div>
+
+            <div class="metric-row">
+              <div class="metric">
+                <div class="eyebrow">Today's Classes</div>
+                <div class="num">4</div>
+                <p>2 need attendance</p>
+              </div>
+              <div class="metric">
+                <div class="eyebrow">Progress Due</div>
+                <div class="num">3</div>
+                <p>Students need updates</p>
+              </div>
+            </div>
+
+            <div class="class-card">
+              <div class="eyebrow">Next Class</div>
+              <h3>Stage 2 Class</h3>
+              <p>9:00 AM • Bishan Swimming Complex</p>
+              <div class="badge-row">
+                <span class="badge alert">Affected by Alert</span>
+                <span class="badge yellow">Cover Class</span>
+              </div>
+              <div class="mini-btns">
+                <button class="mini-btn primary">Open Class</button>
+                <button class="mini-btn secondary">View Student</button>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-nav">
+            <button class="nav-item active">Today</button>
+            <button class="nav-item">Classes</button>
+            <button class="nav-item">Students</button>
+            <button class="nav-item">Inbox</button>
+            <button class="nav-item">More</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pill-row">
+        <span class="tab-pill active">Today</span>
+        <span class="tab-pill">Classes</span>
+        <span class="tab-pill">Students</span>
+        <span class="tab-pill">Inbox</span>
+        <span class="tab-pill">More</span>
+      </div>
+    </div>
+
+    <!-- Info panel -->
+    <div class="info-panel">
+
+      <div class="section-card">
+        <h3>Live Prototype</h3>
+        <p class="desc">React + Vite app running with mock data. Open in your browser:</p>
+        <div class="live-badge"><span class="live-dot"></span> Dev server starting…</div>
+        <div class="url-box">http://localhost:5173</div>
+      </div>
+
+      <div class="section-card">
+        <h3>Build Status</h3>
+        <p class="desc">Screens from the README spec (27 required)</p>
+        <div class="stat-row">
+          <div class="stat"><div class="num green">12</div><div class="label">Built</div></div>
+          <div class="stat"><div class="num yellow">15</div><div class="label">To Build</div></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>What's Already Built</h3>
+        <p class="desc">Functional screens &amp; overlays in the current codebase</p>
+        <div class="screen-list">
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Today Dashboard</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Class List / Schedule</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Class Detail (overlay)</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Child Attendance</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Student Profiles</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Student Progress</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Equipment Checklist</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Lightning Alert + Land Drill</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Coach Inbox</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Parent WhatsApp Placeholder</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Admin Request Form</span><span class="screen-tag built">Done</span></div>
+          <div class="screen-item built"><div class="screen-dot built"></div><span class="screen-name">Emergency Safety Shortcut</span><span class="screen-tag built">Done</span></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <h3>Still To Build</h3>
+        <p class="desc">From the 27 minimum screens in the README</p>
+        <div class="screen-list">
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Coach Login / Welcome</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Attendance Summary screen</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Coach Attendance / Check-in</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Test Readiness screen</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Equipment Issue Report</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Admin Request Status / Tracking</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Student Transfer Request</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Trial Student Notes</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">New Student First-Class Notes</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Incident / Safety Note</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Coach Handover Notes</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Coach Referrals</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Leave / MC / Availability</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">Coach Performance Snapshot</span><span class="screen-tag missing">To Do</span></div>
+          <div class="screen-item missing"><div class="screen-dot missing"></div><span class="screen-name">More / Settings</span><span class="screen-tag missing">To Do</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

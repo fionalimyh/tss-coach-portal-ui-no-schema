@@ -1,0 +1,5 @@
+{"type":"server-started","port":60249,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:60249","screen_dir":"/home/fionalyh/TSS/tss-coach-portal-ui-no-schema/.superpowers/brainstorm/460756-1779259886/content","state_dir":"/home/fionalyh/TSS/tss-coach-portal-ui-no-schema/.superpowers/brainstorm/460756-1779259886/state"}
+{"type":"screen-added","file":"/home/fionalyh/TSS/tss-coach-portal-ui-no-schema/.superpowers/brainstorm/460756-1779259886/content/prototype-overview.html"}
+{"type":"screen-added","file":"/home/fionalyh/TSS/tss-coach-portal-ui-no-schema/.superpowers/brainstorm/460756-1779259886/content/design-direction.html"}
+{"type":"screen-added","file":"/home/fionalyh/TSS/tss-coach-portal-ui-no-schema/.superpowers/brainstorm/460756-1779259886/content/full-design.html"}
+{"type":"server-stopped","reason":"idle timeout"}

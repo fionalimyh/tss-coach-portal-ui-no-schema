@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design Direction — Blue Tone Options</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; padding: 32px 24px; }
+  h1 { font-size: 26px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
+  .subtitle { font-size: 14px; color: #94a3b8; margin-bottom: 32px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1060px; margin: 0 auto; }
+
+  .option-wrap { display: flex; flex-direction: column; gap: 12px; cursor: pointer; }
+  .option-wrap:hover .phone { transform: translateY(-4px); }
+  .phone { background: #1e293b; border-radius: 32px; border: 3px solid #334155; padding: 14px 10px 10px; box-shadow: 0 16px 48px rgba(0,0,0,0.5); transition: transform 0.2s; overflow: hidden; }
+  .phone-notch { width: 80px; height: 20px; background: #0f172a; border-radius: 10px; margin: 0 auto 10px; }
+  .phone-screen { border-radius: 20px; overflow: hidden; }
+
+  /* Shared UI structure */
+  .topbar { padding: 12px 14px 10px; display: flex; justify-content: space-between; align-items: flex-start; }
+  .topbar .eyebrow { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+  .topbar h2 { font-size: 17px; font-weight: 700; }
+  .alert-btn { font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 6px; border: none; cursor: pointer; }
+
+  .screen-body { padding: 10px; display: flex; flex-direction: column; gap: 8px; }
+
+  .welcome { border-radius: 14px; padding: 12px; }
+  .welcome .eyebrow { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .welcome h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .welcome p { font-size: 10px; margin-bottom: 8px; }
+  .btn-row { display: flex; gap: 5px; }
+  .btn-primary { border: none; border-radius: 7px; padding: 7px 10px; font-size: 10px; font-weight: 700; cursor: pointer; flex: 1; }
+  .btn-secondary { border-radius: 7px; padding: 7px 10px; font-size: 10px; font-weight: 600; cursor: pointer; flex: 1; }
+
+  .alert-banner { border-radius: 10px; padding: 10px; border-width: 2px; border-style: solid; }
+  .alert-banner .eyebrow { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px; }
+  .alert-banner h3 { font-size: 12px; font-weight: 700; }
+
+  .metric-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .metric { border-radius: 10px; padding: 8px; }
+  .metric .eyebrow { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
+  .metric .num { font-size: 22px; font-weight: 800; }
+  .metric p { font-size: 9px; }
+
+  .bottom-nav { display: flex; border-top-width: 1px; border-top-style: solid; }
+  .nav-item { flex: 1; padding: 7px 2px; text-align: center; font-size: 9px; font-weight: 600; }
+  .nav-item.active-nav { font-weight: 700; }
+
+  /* Option label */
+  .option-label { background: #1e293b; border-radius: 12px; padding: 14px 16px; }
+  .option-label h3 { font-size: 14px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+  .option-label p { font-size: 12px; color: #94a3b8; margin-bottom: 10px; line-height: 1.5; }
+  .swatch-row { display: flex; gap: 6px; }
+  .swatch { width: 28px; height: 28px; border-radius: 6px; }
+  .choose-btn { margin-top: 10px; width: 100%; padding: 9px; border-radius: 8px; border: 2px solid #334155; background: transparent; color: #94a3b8; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.15s; }
+  .choose-btn:hover { border-color: #fbbf24; color: #fbbf24; }
+
+  /* ── OPTION A: Deep Navy ── */
+  .a-topbar { background: #0f2e5a; }
+  .a-topbar .eyebrow { color: #fbbf24; }
+  .a-topbar h2 { color: #fff; }
+  .a-alert-btn { background: #ef4444; color: #fff; }
+  .a-screen-body { background: #f0f5ff; }
+  .a-welcome { background: #0f2e5a; }
+  .a-welcome .eyebrow { color: #fbbf24; }
+  .a-welcome h3 { color: #fff; }
+  .a-welcome p { color: #93c5fd; }
+  .a-btn-primary { background: #fbbf24; color: #0f2e5a; }
+  .a-btn-secondary { background: transparent; border: 1px solid #1e4d8c; color: #93c5fd; }
+  .a-alert { background: #fff0f0; border-color: #ef4444; }
+  .a-alert .eyebrow { color: #ef4444; }
+  .a-alert h3 { color: #1e293b; }
+  .a-metric { background: #dbeafe; }
+  .a-metric .eyebrow { color: #1e40af; }
+  .a-metric .num { color: #0f2e5a; }
+  .a-metric p { color: #1e40af; }
+  .a-bottom-nav { border-color: #dbeafe; background: #fff; }
+  .a-nav-item { color: #94a3b8; }
+  .a-nav-active { color: #0f2e5a; }
+
+  /* ── OPTION B: Ocean Blue ── */
+  .b-topbar { background: #0369a1; }
+  .b-topbar .eyebrow { color: #fde68a; }
+  .b-topbar h2 { color: #fff; }
+  .b-alert-btn { background: #dc2626; color: #fff; }
+  .b-screen-body { background: #f0f9ff; }
+  .b-welcome { background: linear-gradient(135deg, #0369a1, #0ea5e9); }
+  .b-welcome .eyebrow { color: #fde68a; }
+  .b-welcome h3 { color: #fff; }
+  .b-welcome p { color: #bae6fd; }
+  .b-btn-primary { background: #fbbf24; color: #0c4a6e; }
+  .b-btn-secondary { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; }
+  .b-alert { background: #fff1f2; border-color: #f43f5e; }
+  .b-alert .eyebrow { color: #f43f5e; }
+  .b-alert h3 { color: #1e293b; }
+  .b-metric { background: #e0f2fe; }
+  .b-metric .eyebrow { color: #0369a1; }
+  .b-metric .num { color: #0c4a6e; }
+  .b-metric p { color: #0369a1; }
+  .b-bottom-nav { border-color: #bae6fd; background: #fff; }
+  .b-nav-item { color: #94a3b8; }
+  .b-nav-active { color: #0369a1; }
+
+  /* ── OPTION C: Midnight Indigo ── */
+  .c-topbar { background: #1e1b4b; }
+  .c-topbar .eyebrow { color: #fbbf24; }
+  .c-topbar h2 { color: #fff; }
+  .c-alert-btn { background: #ef4444; color: #fff; }
+  .c-screen-body { background: #f5f5ff; }
+  .c-welcome { background: linear-gradient(160deg, #1e1b4b, #3730a3); }
+  .c-welcome .eyebrow { color: #fbbf24; }
+  .c-welcome h3 { color: #fff; }
+  .c-welcome p { color: #c7d2fe; }
+  .c-btn-primary { background: #fbbf24; color: #1e1b4b; }
+  .c-btn-secondary { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #e0e7ff; }
+  .c-alert { background: #fef2f2; border-color: #ef4444; }
+  .c-alert .eyebrow { color: #ef4444; }
+  .c-alert h3 { color: #1e293b; }
+  .c-metric { background: #e0e7ff; }
+  .c-metric .eyebrow { color: #3730a3; }
+  .c-metric .num { color: #1e1b4b; }
+  .c-metric p { color: #3730a3; }
+  .c-bottom-nav { border-color: #c7d2fe; background: #fff; }
+  .c-nav-item { color: #94a3b8; }
+  .c-nav-active { color: #1e1b4b; }
+
+  .section-note { max-width: 1060px; margin: 0 auto 28px; background: #1e293b; border-radius: 12px; padding: 16px 20px; }
+  .section-note h3 { font-size: 14px; font-weight: 700; color: #fbbf24; margin-bottom: 6px; }
+  .section-note p { font-size: 13px; color: #94a3b8; line-height: 1.6; }
+  .section-note ul { font-size: 13px; color: #94a3b8; line-height: 1.8; padding-left: 18px; }
+</style>
+</head>
+<body>
+
+<div style="max-width:1060px;margin:0 auto">
+  <h1>Design Direction — Choose Your Blue Tone</h1>
+  <p class="subtitle">All options use yellow (#FBBF24) for primary buttons and black/dark text. Font: Inter (market standard for mobile health &amp; ops apps).</p>
+
+  <div class="section-note">
+    <h3>What stays constant across all options</h3>
+    <ul>
+      <li>Font: <strong>Inter</strong> — Google's most-used sans-serif for mobile web apps. Legible at all sizes.</li>
+      <li>Primary buttons: <strong>Amber Yellow #FBBF24</strong> — high contrast, tap-friendly, 52px tall</li>
+      <li>Body text: <strong>#1e293b (near-black)</strong> — WCAG AA compliant on all blue backgrounds</li>
+      <li>Minimum font size: <strong>18px body / 22px labels / 28px headings</strong> — elderly-friendly</li>
+      <li>Font size settings toggle in the Settings screen (3 levels: Normal / Large / Extra Large)</li>
+      <li>Login screen: email + password with show/hide toggle and "Forgot password" link</li>
+    </ul>
+  </div>
+
+  <div class="grid">
+
+    <!-- OPTION A: Deep Navy -->
+    <div class="option-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="topbar a-topbar">
+            <div>
+              <div class="eyebrow a-topbar">Good morning</div>
+              <h2 style="color:#fff;font-size:17px;font-weight:700">Coach Ryan</h2>
+            </div>
+            <button class="alert-btn a-alert-btn">⚡ Alert</button>
+          </div>
+          <div class="screen-body a-screen-body">
+            <div class="welcome a-welcome">
+              <div class="eyebrow" style="color:#fbbf24;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Check-in Ready</div>
+              <h3 style="color:#fff;font-size:14px;font-weight:700;margin-bottom:4px">Welcome back, Coach Ryan.</h3>
+              <p style="color:#93c5fd;font-size:10px;margin-bottom:8px">4 classes today at Bishan. First class: 9:00 AM.</p>
+              <div class="btn-row">
+                <button class="btn-primary a-btn-primary">Check In</button>
+                <button class="btn-secondary a-btn-secondary">View Classes</button>
+              </div>
+            </div>
+            <div class="alert-banner a-alert" style="background:#fff0f0;border-color:#ef4444">
+              <div class="eyebrow" style="color:#ef4444;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Urgent Alert</div>
+              <h3 style="color:#1e293b;font-size:12px;font-weight:700">⚡ Lightning alert — Bishan pool</h3>
+            </div>
+            <div class="metric-row">
+              <div class="metric a-metric">
+                <div class="eyebrow" style="color:#1e40af;font-size:9px;text-transform:uppercase;letter-spacing:1px">Classes</div>
+                <div class="num" style="color:#0f2e5a;font-size:22px;font-weight:800">4</div>
+                <p style="color:#1e40af;font-size:9px">2 need attendance</p>
+              </div>
+              <div class="metric a-metric">
+                <div class="eyebrow" style="color:#1e40af;font-size:9px;text-transform:uppercase;letter-spacing:1px">Progress</div>
+                <div class="num" style="color:#0f2e5a;font-size:22px;font-weight:800">3</div>
+                <p style="color:#1e40af;font-size:9px">Updates needed</p>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-nav a-bottom-nav" style="border-color:#dbeafe;background:#fff;">
+            <div class="nav-item a-nav-active" style="color:#0f2e5a;font-weight:700;font-size:9px;border-top:3px solid #fbbf24;padding-top:4px">Today</div>
+            <div class="nav-item a-nav-item" style="color:#94a3b8;font-size:9px;padding-top:7px">Classes</div>
+            <div class="nav-item a-nav-item" style="color:#94a3b8;font-size:9px;padding-top:7px">Students</div>
+            <div class="nav-item a-nav-item" style="color:#94a3b8;font-size:9px;padding-top:7px">Inbox</div>
+            <div class="nav-item a-nav-item" style="color:#94a3b8;font-size:9px;padding-top:7px">More</div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <h3>A — Deep Navy</h3>
+        <p>Authoritative, high-contrast. Navy header (#0F2E5A) with blue-50 card backgrounds. Feels like a professional operations tool. Strong legibility for older users.</p>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#0f2e5a" title="Primary Navy"></div>
+          <div class="swatch" style="background:#1e4d8c" title="Mid Navy"></div>
+          <div class="swatch" style="background:#dbeafe" title="Light Blue bg"></div>
+          <div class="swatch" style="background:#fbbf24" title="Amber Yellow"></div>
+          <div class="swatch" style="background:#1e293b" title="Body Text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION B: Ocean Blue -->
+    <div class="option-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="topbar b-topbar">
+            <div>
+              <div class="eyebrow" style="color:#fde68a;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Good morning</div>
+              <h2 style="color:#fff;font-size:17px;font-weight:700">Coach Ryan</h2>
+            </div>
+            <button class="alert-btn b-alert-btn">⚡ Alert</button>
+          </div>
+          <div class="screen-body b-screen-body">
+            <div class="welcome b-welcome" style="border-radius:14px;padding:12px;background:linear-gradient(135deg,#0369a1,#0ea5e9)">
+              <div class="eyebrow" style="color:#fde68a;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Check-in Ready</div>
+              <h3 style="color:#fff;font-size:14px;font-weight:700;margin-bottom:4px">Welcome back, Coach Ryan.</h3>
+              <p style="color:#bae6fd;font-size:10px;margin-bottom:8px">4 classes today at Bishan. First class: 9:00 AM.</p>
+              <div class="btn-row">
+                <button class="btn-primary b-btn-primary">Check In</button>
+                <button class="btn-secondary b-btn-secondary" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);color:#fff">View Classes</button>
+              </div>
+            </div>
+            <div class="alert-banner" style="background:#fff1f2;border-color:#f43f5e;border-radius:10px;padding:10px">
+              <div class="eyebrow" style="color:#f43f5e;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Urgent Alert</div>
+              <h3 style="color:#1e293b;font-size:12px;font-weight:700">⚡ Lightning alert — Bishan pool</h3>
+            </div>
+            <div class="metric-row">
+              <div class="metric" style="background:#e0f2fe;border-radius:10px;padding:8px">
+                <div class="eyebrow" style="color:#0369a1;font-size:9px;text-transform:uppercase;letter-spacing:1px">Classes</div>
+                <div class="num" style="color:#0c4a6e;font-size:22px;font-weight:800">4</div>
+                <p style="color:#0369a1;font-size:9px">2 need attendance</p>
+              </div>
+              <div class="metric" style="background:#e0f2fe;border-radius:10px;padding:8px">
+                <div class="eyebrow" style="color:#0369a1;font-size:9px;text-transform:uppercase;letter-spacing:1px">Progress</div>
+                <div class="num" style="color:#0c4a6e;font-size:22px;font-weight:800">3</div>
+                <p style="color:#0369a1;font-size:9px">Updates needed</p>
+              </div>
+            </div>
+          </div>
+          <div class="bottom-nav" style="border-color:#bae6fd;background:#fff;display:flex">
+            <div style="color:#0369a1;font-weight:700;font-size:9px;border-top:3px solid #fbbf24;padding:4px 2px 7px;flex:1;text-align:center">Today</div>
+            <div style="color:#94a3b8;font-size:9px;padding:7px 2px;flex:1;text-align:center">Classes</div>
+            <div style="color:#94a3b8;font-size:9px;padding:7px 2px;flex:1;text-align:center">Students</div>
+            <div style="color:#94a3b8;font-size:9px;padding:7px 2px;flex:1;text-align:center">Inbox</div>
+            <div style="color:#94a3b8;font-size:9px;padding:7px 2px;flex:1;text-align:center">More</div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <h3>B — Ocean Blue ✦ Recommended</h3>
+        <p>Fresh, energetic gradient (cyan → sky). Aligns with aquatic brand. Modern fintech/health-app feel. Warm yellow on cool blue gives maximum button contrast. Popular in SE Asia apps.</p>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#0369a1" title="Ocean Primary"></div>
+          <div class="swatch" style="background:#0ea5e9" title="Sky Accent"></div>
+          <div class="swatch" style="background:#e0f2fe" title="Light bg"></div>
+          <div class="swatch" style="background:#fbbf24" title="Amber Yellow"></div>
+          <div class="swatch" style="background:#0c4a6e" title="Body Text"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION C: Midnight Indigo -->
+    <div class="option-wrap">
+      <div class="phone">
+        <div class="phone-notch"></div>
+        <div class="phone-screen">
+          <div class="topbar" style="background:#1e1b4b;padding:12px 14px 10px;display:flex;justify-content:space-between;align-items:flex-start">
+            <div>
+              <div style="color:#fbbf24;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:2px">Good morning</div>
+              <div style="color:#fff;font-size:17px;font-weight:700">Coach Ryan</div>
+            </div>
+            <button style="background:#ef4444;color:#fff;font-size:10px;font-weight:700;padding:5px 10px;border-radius:6px;border:none">⚡ Alert</button>
+          </div>
+          <div style="padding:10px;display:flex;flex-direction:column;gap:8px;background:#f5f5ff">
+            <div style="background:linear-gradient(160deg,#1e1b4b,#3730a3);border-radius:14px;padding:12px">
+              <div style="color:#fbbf24;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Check-in Ready</div>
+              <div style="color:#fff;font-size:14px;font-weight:700;margin-bottom:4px">Welcome back, Coach Ryan.</div>
+              <div style="color:#c7d2fe;font-size:10px;margin-bottom:8px">4 classes today at Bishan. First class: 9:00 AM.</div>
+              <div style="display:flex;gap:5px">
+                <button style="background:#fbbf24;color:#1e1b4b;border:none;border-radius:7px;padding:7px 10px;font-size:10px;font-weight:700;flex:1">Check In</button>
+                <button style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#e0e7ff;border-radius:7px;padding:7px 10px;font-size:10px;font-weight:600;flex:1">View Classes</button>
+              </div>
+            </div>
+            <div style="background:#fef2f2;border:2px solid #ef4444;border-radius:10px;padding:10px">
+              <div style="color:#ef4444;font-size:9px;text-transform:uppercase;letter-spacing:1px;margin-bottom:3px">Urgent Alert</div>
+              <div style="color:#1e293b;font-size:12px;font-weight:700">⚡ Lightning alert — Bishan pool</div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+              <div style="background:#e0e7ff;border-radius:10px;padding:8px">
+                <div style="color:#3730a3;font-size:9px;text-transform:uppercase;letter-spacing:1px">Classes</div>
+                <div style="color:#1e1b4b;font-size:22px;font-weight:800">4</div>
+                <div style="color:#3730a3;font-size:9px">2 need attendance</div>
+              </div>
+              <div style="background:#e0e7ff;border-radius:10px;padding:8px">
+                <div style="color:#3730a3;font-size:9px;text-transform:uppercase;letter-spacing:1px">Progress</div>
+                <div style="color:#1e1b4b;font-size:22px;font-weight:800">3</div>
+                <div style="color:#3730a3;font-size:9px">Updates needed</div>
+              </div>
+            </div>
+          </div>
+          <div style="border-top:1px solid #c7d2fe;background:#fff;display:flex">
+            <div style="color:#1e1b4b;font-weight:700;font-size:9px;border-top:3px solid #fbbf24;padding:4px 2px 7px;flex:1;text-align:center">Today</div>
+            <div style="color:#94a3b8;font-size:9px;padding:7px 2px;flex:1;text-align:center">Classes</div>
+            <div style="color:#94a3b8;font-size:9px;padding:7px 2px;flex:1;text-align:center">Students</div>
+            <div style="color:#94a3b8;font-size:9px;padding:7px 2px;flex:1;text-align:center">Inbox</div>
+            <div style="color:#94a3b8;font-size:9px;padding:7px 2px;flex:1;text-align:center">More</div>
+          </div>
+        </div>
+      </div>
+      <div class="option-label">
+        <h3>C — Midnight Indigo</h3>
+        <p>Deep indigo/violet tones. Premium, sophisticated feel. Strong brand differentiation. Works well if TSS wants to stand apart from typical "aqua blue" swim apps. Highest visual drama.</p>
+        <div class="swatch-row">
+          <div class="swatch" style="background:#1e1b4b" title="Indigo Dark"></div>
+          <div class="swatch" style="background:#3730a3" title="Indigo Mid"></div>
+          <div class="swatch" style="background:#e0e7ff" title="Indigo Light bg"></div>
+          <div class="swatch" style="background:#fbbf24" title="Amber Yellow"></div>
+          <div class="swatch" style="background:#1e293b" title="Body Text"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-note" style="margin-top:28px">
+    <h3>What I'll build after you pick a direction</h3>
+    <p>Whichever palette you choose, I'll apply it across all screens — including the new ones: <strong>Coach Login</strong> (email + password, show/hide, forgot password), <strong>Settings</strong> (font size toggle: Normal / Large / Extra Large), and all 15 missing screens from the spec. The font size setting will persist across the session and scale every screen live.</p>
+  </div>
+</div>
+
+</body>
+</html>
