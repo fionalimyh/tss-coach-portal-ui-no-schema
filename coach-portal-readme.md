@@ -1,8 +1,10 @@
-# The Swim Starter Coach Portal - Mobile Web UI/UX Prototype
+# Swim Starter — Coach Portal UI Prototype
 
 ## 1. Project Overview
 
-The Swim Starter Coach Portal is a **frontend-first, UI/UX-driven mobile web prototype** for coaches.
+The Swim Starter Coach Portal is a **mobile-first, frontend-only UI/UX prototype** for coaches.
+
+This prototype is built with **React + Vite + TypeScript**.
 
 This phase is focused on **visualising the ideal coach experience only**.
 
@@ -16,6 +18,8 @@ This prototype should not include:
 - Real admin workflow automation
 - Real attendance or timetable logic
 - Real payment, CRM, Supabase, Airtable, or Splash integration
+- Real API integration
+- Real database integration
 
 The goal is to first build a simple, clear, and user-friendly interface before deciding how the backend should support it later.
 
@@ -85,6 +89,8 @@ The portal should be suitable for elderly or less tech-confident users who may p
 - Minimal typing
 - Large tap areas
 - Clear confirmation messages
+- Minimal navigation depth
+- Large controls that work well beside the pool
 
 ---
 
@@ -208,6 +214,46 @@ Admin request submitted.
 The student will remain in the current slot until admin confirms the change.
 ```
 
+### 5.6 Accessibility and Usability Rules
+
+| Item | Requirement |
+|---|---|
+| Minimum body font | 18px |
+| Key action text | 18px to 22px |
+| Minimum button height | 52px |
+| Navigation | Bottom navigation, max 5 tabs |
+| Tap targets | Large and well-spaced |
+| Labels | Always use text labels, not icons only |
+| Layout | Card-based, not spreadsheet-based |
+| Table usage | Avoid wide tables for coach-facing mobile screens |
+| Colours | High contrast; do not rely on colour alone |
+| Language | Simple operational wording |
+
+### 5.7 Design System
+
+| Token | Value |
+|---|---|
+| Primary colour | Ocean Blue `#0369A1` |
+| Accent | Sky `#0EA5E9` |
+| Primary buttons | Amber Yellow `#FBBF24` |
+| Body text | Near-black `#1E293B` |
+| Background | Ice Blue `#F0F9FF` |
+| Font | Inter |
+| Minimum body font | 18px |
+| Minimum button height | 52px |
+
+### 5.8 Font Size Setting
+
+Users can change text size in **More -> Settings**.
+
+| Level | Body | Heading |
+|---|---|---|
+| Normal | 18px | 28px |
+| Large | 20px | 30px |
+| Extra Large | 22px | 32px |
+
+This is important because some coaches may be older and may need larger text.
+
 ---
 
 ## 6. Scope of This Prototype
@@ -238,12 +284,17 @@ This prototype is not:
 - A real student transfer system
 - A real class capacity engine
 - A real notification broadcast system
+- A real revenue calculation system
+- A real payslip generation system
+- A real activity tracking backend
 
 ---
 
 ## 7. Expected Output
 
 The expected output is a **mobile-first UI/UX prototype** for the Coach Portal.
+
+It should be a clickable UI/UX prototype for swim coaches to manage daily class operations such as attendance, student progress, equipment, safety alerts, parent communication, and admin requests.
 
 The output should include:
 
@@ -258,6 +309,7 @@ The output should include:
 9. Placeholder WhatsApp / WATI actions
 10. Placeholder admin instruction/request flows
 11. No backend, schema, or database logic
+12. Static mock data only
 
 The prototype should allow stakeholders to review:
 
@@ -1369,6 +1421,9 @@ Coach Portal
     └── Settings
 ```
 
+Implementation note:
+- The current React prototype keeps this inside a single-app shell using local screen state rather than a routing library.
+
 ---
 
 ## 11. Recommended Bottom Navigation
@@ -1424,6 +1479,33 @@ The first UI/UX prototype should include:
 25. Leave / MC / Availability
 26. Emergency / Safety Shortcut
 27. More / Settings
+
+Implementation summary from the current README:
+- Main tabs: `Today`, `Classes`, `Students`, `Inbox`, `More`
+- Overlays / sub-screens include:
+  - Class Detail
+  - Child Attendance
+  - Attendance Summary
+  - Equipment Checklist
+  - Equipment Issue Report
+  - Coach Handover Notes
+  - Lightning Alert
+  - Land Drill Mode
+  - Student Profile
+  - Child Progress
+  - Test Readiness
+  - Trial Student Notes
+  - New Student First-Class Notes
+  - Student Transfer Request
+  - Parent WhatsApp / WATI Placeholder
+  - Admin Request Form
+  - Admin Request Status
+  - Incident / Safety Note
+  - Coach Referrals
+  - Leave / MC
+  - Performance Snapshot
+  - Emergency Safety Shortcut
+  - Settings
 
 ---
 
@@ -1656,6 +1738,27 @@ Mock data should show different scenarios, such as:
 - Progress update due
 - Admin request pending
 
+The current implementation should keep this mock-data-first structure:
+
+```text
+mockCoach
+mockCoachSchedule
+mockClasses
+mockStudents
+mockStudentProgress
+mockStudentAttendance
+mockCoachAttendance
+mockEquipment
+mockAlerts
+mockNotifications
+mockParentMessages
+mockAdminRequests
+mockTrialStudents
+mockReferrals
+mockIncidents
+mockHandoverNotes
+```
+
 ---
 
 ## 18. Out of Scope
@@ -1678,6 +1781,8 @@ Do not build or specify:
 - Real notification engine
 - Real CRM sync
 - Real Splash, Airtable, or Supabase integration
+
+This remains a UI-only prototype using static mock data.
 
 ---
 
@@ -1737,3 +1842,33 @@ Coach Portal = what the coach needs to do today
 Parent Portal = what the parent needs to know or do
 Admin Portal = what the business needs to manage and approve
 ```
+
+## 22. Project Structure
+
+```text
+src/
+  App.tsx        - all screens, overlays, and local state
+  mockData.ts    - typed mock data
+  styles.css     - design tokens and component styles
+  main.tsx       - React root
+
+docs/
+  superpowers/
+    specs/
+      2026-05-20-coach-portal-redesign-design.md
+
+coach-portal-readme.md   - detailed product requirements
+handover.md              - AI session progress handover
+README.md                - project overview
+```
+
+## 23. Tech Stack
+
+- React 19
+- TypeScript 5
+- Vite 6
+- Custom CSS
+- No UI library
+- No routing library
+- Local React state only
+- Static mock data only
