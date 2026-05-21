@@ -1,0 +1,14 @@
+# Local secret storage
+creater.env/*
+!creater.env/.gitkeep
+.env
+.env.*
+!.env.example
+.superpowers/
+*.Zone.Identifier
+*:Zone.Identifier
+
+# Frontend build artifacts
+node_modules/
+dist/
+tsconfig.tsbuildinfo
