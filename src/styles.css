@@ -927,6 +927,15 @@ p, span { font-size: var(--fs-body); line-height: 1.55; }
   border-color: var(--primary);
 }
 
+.send-to-parent-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-small);
+  color: var(--text-soft);
+  cursor: pointer;
+}
+
 .success-copy {
   color: var(--success-text);
 }

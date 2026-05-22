@@ -385,17 +385,27 @@ function CompactRosterRow({
   transferStatus,
   onOpenStudent,
   onCancelTransfer,
+  attendance,
+  onAttendanceChange,
 }: {
   student: StudentItem;
   transferStatus?: TransferStatus;
   onOpenStudent: () => void;
   onCancelTransfer?: () => void;
+  attendance?: "present" | "absent" | null;
+  onAttendanceChange?: (val: "present" | "absent") => void;
 }) {
   const expanded = true;
   const [assessmentMarkedReady, setAssessmentMarkedReady] = useState(false);
   const [equipmentIssued, setEquipmentIssued] = useState(false);
-  const [attendanceMarked, setAttendanceMarked] = useState<"absent" | "present" | null>(null);
+  const [attendanceInternal, setAttendanceInternal] = useState<"absent" | "present" | null>(null);
   const [parentCommentSubmitted, setParentCommentSubmitted] = useState(false);
+  const [sendToParent, setSendToParent] = useState(false);
+  const attendanceMarked = attendance !== undefined ? attendance : attendanceInternal;
+  const handleAttendanceChange = (val: "present" | "absent") => {
+    setAttendanceInternal(val);
+    onAttendanceChange?.(val);
+  };
   const enrolmentStatus = formatEnrolmentStatus(student);
   const paymentStatus = formatPaymentStatus(student.paymentStatus);
   const showAssessmentCard = isAssessmentDue(student);
@@ -422,8 +432,8 @@ function CompactRosterRow({
 
       {!attendanceMarked && (
         <div className="student-attendance-row">
-          <button className="student-attendance-button absent" onClick={() => setAttendanceMarked("absent")} type="button">Absent</button>
-          <button className="student-attendance-button present" onClick={() => setAttendanceMarked("present")} type="button">Present</button>
+          <button className="student-attendance-button absent" onClick={() => handleAttendanceChange("absent")} type="button">Absent</button>
+          <button className="student-attendance-button present" onClick={() => handleAttendanceChange("present")} type="button">Present</button>
         </div>
       )}
 
@@ -435,14 +445,18 @@ function CompactRosterRow({
               <p className="student-action-copy">
                 Speak to parent about {student.pauseQuitStatus === "Pending Pause" ? "the pending pause request" : "the pending quit request"}.
               </p>
-              <label className="student-comment-field">
+              <div className="student-comment-field">
                 <span className="student-comment-label">Coach comment</span>
+                <label className="send-to-parent-row">
+                  <input checked={sendToParent} onChange={(e) => setSendToParent(e.target.checked)} type="checkbox" />
+                  <span>Send comment to parent</span>
+                </label>
                 <textarea
                   className="student-comment-input"
-                  placeholder="Add notes for coach records. This will also be sent to the admin portal."
+                  placeholder={sendToParent ? "This comment will be saved to coach records and sent to the parent." : "Add notes for coach records only."}
                   rows={3}
                 />
-              </label>
+              </div>
               {!parentCommentSubmitted ? (
                 <button className="success-button" onClick={() => setParentCommentSubmitted(true)} type="button">
                   Spoken
@@ -1303,6 +1317,78 @@ function AdminCommentScreen() {
   );
 }
 
+function ClassDetailPageContent({
+  item, openPage, transferRequests, onCancelTransfer, onOpenNextClass, classes,
+}: {
+  item: ClassItem;
+  openPage: (p: PageState) => void;
+  transferRequests: Record<string, TransferRequest>;
+  onCancelTransfer: (studentId: string) => void;
+  onOpenNextClass: (classId: string) => void;
+  classes: ClassItem[];
+}) {
+  const classStudents = students.filter((student) => item.studentIds.includes(student.id));
+  const nextClassIndex = classes.findIndex((entry) => entry.id === item.id);
+  const nextClass = classes[nextClassIndex + 1];
+  const [attendanceMap, setAttendanceMap] = useState<Record<string, "present" | "absent" | null>>({});
+
+  const markAllPresent = () => {
+    const newMap: Record<string, "present" | "absent" | null> = {};
+    classStudents.forEach((s) => { newMap[s.id] = "present"; });
+    setAttendanceMap(newMap);
+  };
+
+  return (
+    <>
+      <article className="section-card">
+        <div className="section-header">
+          <div>
+            <p className="eyebrow">Selected class</p>
+          </div>
+          <Badge label={`${classStudents.length} students`} tone="blue" />
+        </div>
+        <div className="selected-class-meta">
+          <span><strong>Day</strong> {item.dayLabel}</span>
+          <span><strong>Timeslot</strong> {item.time}</span>
+          <span className="selected-class-meta-pool"><strong>Pool</strong> {item.pool}</span>
+        </div>
+        <button className="secondary-button full-width" onClick={markAllPresent} style={{ marginTop: 12 }} type="button">
+          Mark all present
+        </button>
+      </article>
+
+      <article className="list-card">
+        <div className="section-title-row">
+          <p className="eyebrow" style={{ margin: 0 }}>Class Roster</p>
+          <HelpTip text="Tap More on any row to open the student detail screen and continue into transfer." />
+          <button className="roster-lightning-button" onClick={() => openPage({ key: "lightningAlert" })} type="button">
+            Lightning
+          </button>
+        </div>
+        <div className="student-compact-list">
+          {classStudents.map((student) => (
+            <CompactRosterRow
+              key={student.id}
+              attendance={attendanceMap[student.id] ?? null}
+              onAttendanceChange={(val) => setAttendanceMap((prev) => ({ ...prev, [student.id]: val }))}
+              onCancelTransfer={transferRequests[student.id] ? () => onCancelTransfer(student.id) : undefined}
+              onOpenStudent={() => openPage({ key: "studentProfile", studentId: student.id, classId: item.id })}
+              student={student}
+              transferStatus={transferRequests[student.id]?.status}
+            />
+          ))}
+        </div>
+      </article>
+
+      {nextClass && (
+        <button className="secondary-button full-width" onClick={() => onOpenNextClass(nextClass.id)} type="button">
+          Next class
+        </button>
+      )}
+    </>
+  );
+}
+
 function PageView({
   page, onBack, openPage, fontScale, setFontScale, transferRequests, onSubmitTransfer, onCancelTransfer, onOpenNextClass, lightningAlertActive, onTurnOnLightningAlert, onTurnOffLightningAlert, onApplyLeave, leaveApplications, onCancelLeave,
 }: {
@@ -1328,54 +1414,17 @@ function PageView({
 
   if (page.key === "classDetail") {
     const item = classes.find((entry) => entry.id === page.classId)!;
-    const classStudents = students.filter((student) => item.studentIds.includes(student.id));
-    const nextClassIndex = classes.findIndex((entry) => entry.id === item.id);
-    const nextClass = classes[nextClassIndex + 1];
     title = "Upcoming Class";
     subtitle = "";
     content = (
-      <>
-        <article className="section-card">
-          <div className="section-header">
-            <div>
-              <p className="eyebrow">Selected class</p>
-            </div>
-            <Badge label={`${classStudents.length} students`} tone="blue" />
-          </div>
-          <div className="selected-class-meta">
-            <span><strong>Day</strong> {item.dayLabel}</span>
-            <span><strong>Timeslot</strong> {item.time}</span>
-            <span className="selected-class-meta-pool"><strong>Pool</strong> {item.pool}</span>
-          </div>
-        </article>
-
-        <article className="list-card">
-          <div className="section-title-row">
-            <p className="eyebrow" style={{ margin: 0 }}>Class Roster</p>
-            <HelpTip text="Tap More on any row to open the student detail screen and continue into transfer." />
-            <button className="roster-lightning-button" onClick={() => openPage({ key: "lightningAlert" })} type="button">
-              Lightning
-            </button>
-          </div>
-          <div className="student-compact-list">
-            {classStudents.map((student) => (
-              <CompactRosterRow
-                key={student.id}
-                onCancelTransfer={transferRequests[student.id] ? () => onCancelTransfer(student.id) : undefined}
-                onOpenStudent={() => openPage({ key: "studentProfile", studentId: student.id, classId: item.id })}
-                student={student}
-                transferStatus={transferRequests[student.id]?.status}
-              />
-            ))}
-          </div>
-        </article>
-
-        {nextClass && (
-          <button className="secondary-button full-width" onClick={() => onOpenNextClass(nextClass.id)} type="button">
-            Next class
-          </button>
-        )}
-      </>
+      <ClassDetailPageContent
+        classes={classes}
+        item={item}
+        onCancelTransfer={onCancelTransfer}
+        onOpenNextClass={onOpenNextClass}
+        openPage={openPage}
+        transferRequests={transferRequests}
+      />
     );
   }
 
