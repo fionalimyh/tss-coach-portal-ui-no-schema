@@ -337,8 +337,8 @@ function StudentActivityCard({
       </button>
 
       <div className="attendance-chip-row">
-        <button className="attendance-action active" type="button">Present</button>
-        <button className="attendance-action" type="button">Absent</button>
+        <button className="attendance-tick active" type="button"><Icon name="check" /></button>
+        <button className="attendance-action" style={{ flex: 1 }} type="button">Absent</button>
       </div>
 
       {expanded && (
@@ -392,19 +392,22 @@ function CompactRosterRow({
   transferStatus?: TransferStatus;
   onOpenStudent: () => void;
   onCancelTransfer?: () => void;
-  attendance?: "present" | "absent" | null;
+  attendance?: "present" | "absent";
   onAttendanceChange?: (val: "present" | "absent") => void;
 }) {
   const expanded = true;
   const [assessmentMarkedReady, setAssessmentMarkedReady] = useState(false);
   const [equipmentIssued, setEquipmentIssued] = useState(false);
-  const [attendanceInternal, setAttendanceInternal] = useState<"absent" | "present" | null>(null);
+  const [attendanceInternal, setAttendanceInternal] = useState<"absent" | "present">("absent");
   const [parentCommentSubmitted, setParentCommentSubmitted] = useState(false);
   const [sendToParent, setSendToParent] = useState(false);
   const attendanceMarked = attendance !== undefined ? attendance : attendanceInternal;
   const handleAttendanceChange = (val: "present" | "absent") => {
     setAttendanceInternal(val);
     onAttendanceChange?.(val);
+  };
+  const toggleAttendance = () => {
+    handleAttendanceChange(attendanceMarked === "present" ? "absent" : "present");
   };
   const enrolmentStatus = formatEnrolmentStatus(student);
   const paymentStatus = formatPaymentStatus(student.paymentStatus);
@@ -414,28 +417,32 @@ function CompactRosterRow({
   return (
     <div className={`student-compact-row ${expanded ? "expanded" : ""}`}>
       <div className="student-compact-toggle">
-        <div>
-          <h3 className="student-row-name">{student.name}</h3>
-          <p className="student-row-meta">{formatTestLevelLabel(student.currentTestLevel)}</p>
-          <div className="student-name-status-group">
-            <span className={`student-name-status ${enrolmentStatusTone(enrolmentStatus)}`}>{enrolmentStatus}</span>
-            {paymentStatus && <><span className="student-name-status" style={{ color: "var(--text-muted)" }}>·</span><span className={`student-name-status ${paymentStatusTone(paymentStatus)}`}>{paymentStatus}</span></>}
+        <div className="student-row-summary">
+          <button aria-label="Open student detail" className="student-detail-arrow" onClick={onOpenStudent} type="button">
+            <Icon name="chevron" />
+          </button>
+          <div>
+            <h3 className="student-row-name">{student.name}</h3>
+            <p className="student-row-meta">{formatTestLevelLabel(student.currentTestLevel)}</p>
+            <div className="student-name-status-group">
+              <span className={`student-name-status ${enrolmentStatusTone(enrolmentStatus)}`}>{enrolmentStatus}</span>
+              {paymentStatus && <><span className="student-name-status" style={{ color: "var(--text-muted)" }}>·</span><span className={`student-name-status ${paymentStatusTone(paymentStatus)}`}>{paymentStatus}</span></>}
+            </div>
           </div>
         </div>
         <div className="student-row-actions">
           {transferStatus && <Badge label={transferStatus} tone="success" />}
-          <button aria-label="Open student detail" className="student-detail-arrow" onClick={onOpenStudent} type="button">
-            <Icon name="chevron" />
+          <button
+            aria-label={attendanceMarked === "present" ? `Mark ${student.name} absent` : `Mark ${student.name} present`}
+            aria-pressed={attendanceMarked === "present"}
+            className={`student-attendance-tick ${attendanceMarked === "present" ? "active" : ""}`}
+            onClick={toggleAttendance}
+            type="button"
+          >
+            {attendanceMarked === "present" && <Icon name="check" />}
           </button>
         </div>
       </div>
-
-      {!attendanceMarked && (
-        <div className="student-attendance-row">
-          <button className="student-attendance-button absent" onClick={() => handleAttendanceChange("absent")} type="button">Absent</button>
-          <button className="student-attendance-button present" onClick={() => handleAttendanceChange("present")} type="button">Present</button>
-        </div>
-      )}
 
       {expanded && (
         <div className="student-compact-detail">
@@ -1330,10 +1337,16 @@ function ClassDetailPageContent({
   const classStudents = students.filter((student) => item.studentIds.includes(student.id));
   const nextClassIndex = classes.findIndex((entry) => entry.id === item.id);
   const nextClass = classes[nextClassIndex + 1];
-  const [attendanceMap, setAttendanceMap] = useState<Record<string, "present" | "absent" | null>>({});
+  const [attendanceMap, setAttendanceMap] = useState<Record<string, "present" | "absent">>(() => {
+    const initialMap: Record<string, "present" | "absent"> = {};
+    classStudents.forEach((student) => {
+      initialMap[student.id] = "absent";
+    });
+    return initialMap;
+  });
 
   const markAllPresent = () => {
-    const newMap: Record<string, "present" | "absent" | null> = {};
+    const newMap: Record<string, "present" | "absent"> = {};
     classStudents.forEach((s) => { newMap[s.id] = "present"; });
     setAttendanceMap(newMap);
   };
@@ -1352,24 +1365,27 @@ function ClassDetailPageContent({
           <span><strong>Timeslot</strong> {item.time}</span>
           <span className="selected-class-meta-pool"><strong>Pool</strong> {item.pool}</span>
         </div>
-        <button className="secondary-button full-width" onClick={markAllPresent} style={{ marginTop: 12 }} type="button">
-          Mark all present
-        </button>
       </article>
 
       <article className="list-card">
         <div className="section-title-row">
           <p className="eyebrow" style={{ margin: 0 }}>Class Roster</p>
           <HelpTip text="Tap More on any row to open the student detail screen and continue into transfer." />
-          <button className="roster-lightning-button" onClick={() => openPage({ key: "lightningAlert" })} type="button">
-            Lightning
+
+        </div>
+        <div className="button-row" style={{ marginBottom: 12 }}>
+          <button className="danger-button" onClick={() => openPage({ key: "lightningAlert" })} style={{ flex: 1 }} type="button">
+            Mark ⚡ Alert
+          </button>
+          <button className="success-button" onClick={markAllPresent} style={{ flex: 1 }} type="button">
+            Mark All Present
           </button>
         </div>
         <div className="student-compact-list">
           {classStudents.map((student) => (
             <CompactRosterRow
               key={student.id}
-              attendance={attendanceMap[student.id] ?? null}
+              attendance={attendanceMap[student.id] ?? "absent"}
               onAttendanceChange={(val) => setAttendanceMap((prev) => ({ ...prev, [student.id]: val }))}
               onCancelTransfer={transferRequests[student.id] ? () => onCancelTransfer(student.id) : undefined}
               onOpenStudent={() => openPage({ key: "studentProfile", studentId: student.id, classId: item.id })}

@@ -48,6 +48,8 @@ Bottom nav: **Today / Classes / Coach / Inbox / More**
 - Blue badge shows class count in filter card header
 - Each class card: timeslot range as `h3`, student count badge, pool name
 - Class Detail → Compact Roster (`CompactRosterRow`) → Student Profile → Transfer
+- Compact roster control layout is now left `student-detail-arrow` for student detail, right `student-attendance-tick` for attendance
+- Attendance logic is explicit: checked circle = `present`, empty circle = `absent`
 
 ---
 
@@ -135,6 +137,8 @@ All back-navigable. Page state managed as a stack in App root (`pageStack: PageS
 | **Transfer state at App root** | `Record<string, TransferRequest>` keyed by `studentId` — shared across screens |
 | **No Students standalone tab** | Students accessed within class drill-down only |
 | **Attendance chips** | Present / Absent only — Late removed |
+| **Compact roster attendance** | No unset state; students default to `absent`, checked circle means `present` |
+| **Compact roster control order** | Left `student-detail-arrow`, right `student-attendance-tick` |
 | **Equipment card conditional** | Only shown when `equipmentStatus !== "Not Required"` |
 | **Revenue rate** | `COACH_RATE_PER_STUDENT = 90` constant in App.tsx |
 
@@ -178,6 +182,7 @@ All back-navigable. Page state managed as a stack in App root (`pageStack: PageS
 
 - Headless browser automation (`playwright`) unavailable in this WSL2 environment. Manual review via `http://localhost:5173` required.
 - Revenue calculation is fixed at $90/student/session — actual rate logic (per hour, per level, contracted rate) needs clarification from business before backend implementation.
+- Attendance summary copy in the full attendance workspace is still static demo text and does not yet derive from the compact roster attendance map.
 
 ---
 

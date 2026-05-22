@@ -89,6 +89,8 @@ Inside hero-themed cards, CSS custom properties are scoped locally so `var(--tex
 - Filters: Pool, Day, Timeslot — dropdown selects; blue badge shows class count
 - Each class card: timeslot `h3`, student count badge, pool name; taps to Class Detail
 - Class Detail → Compact Roster → Student Profile → Transfer
+- Compact roster rows use an attendance circle on the right: checked means present, empty means absent
+- Compact roster rows use a left-side detail arrow to open the student profile
 
 ### Coach (root tab)
 Three cards:
@@ -134,6 +136,16 @@ Three cards:
 6. **Cancel** (red) → discards and returns
 
 Transfer state is lifted to the App root (`Record<string, TransferRequest>` keyed by `studentId`), so pending transfers are visible across screens.
+
+---
+
+## Attendance Behavior
+
+- Class Detail uses `CompactRosterRow` for quick poolside attendance marking
+- Each student defaults to `absent`
+- The right-side attendance circle toggles between two explicit states only: checked = `present`, empty = `absent`
+- `Mark All Present` sets every student in the class roster to `present`
+- The left-side arrow opens the student detail page without changing attendance
 
 ---
 
