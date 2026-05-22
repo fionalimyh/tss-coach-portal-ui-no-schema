@@ -246,7 +246,7 @@ p, span { font-size: var(--fs-body); line-height: 1.55; }
 }
 
 .secondary-button {
-  background: var(--surface-soft);
+  background: linear-gradient(180deg, var(--amber) 0%, var(--amber-dark) 100%);
   color: var(--primary);
   border: 1.5px solid #c3def0;
 }
@@ -419,6 +419,9 @@ p, span { font-size: var(--fs-body); line-height: 1.55; }
   box-shadow: var(--shadow-sm);
   display: grid;
   gap: 18px;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .list-card {
@@ -512,6 +515,30 @@ p, span { font-size: var(--fs-body); line-height: 1.55; }
 .badge.blue    { background: var(--primary-soft); color: var(--primary); border-color: #c3def0; }
 .badge.alert   { background: var(--alert-bg);     color: var(--alert-text); border-color: var(--alert-border); }
 .badge.success { background: var(--success-bg);   color: var(--success-text); border-color: #a7f3d0; }
+
+.equipment-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.equipment-pack-list {
+  display: grid;
+  gap: 16px;
+}
+
+.equipment-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+  font-size: var(--fs-small);
+  font-weight: 700;
+}
 
 /* ── Quick action grid ──────────────────────────────────── */
 .quick-grid {
@@ -619,6 +646,9 @@ p, span { font-size: var(--fs-body); line-height: 1.55; }
   box-shadow: var(--shadow-sm);
   display: grid;
   gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 /* ── Progress rows ──────────────────────────────────────── */
@@ -812,9 +842,15 @@ p, span { font-size: var(--fs-body); line-height: 1.55; }
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: nowrap;
-  white-space: nowrap;
-  overflow: hidden;
+  flex-wrap: wrap;
+  white-space: normal;
+  overflow: visible;
+  min-width: 0;
+}
+
+.student-name-status-group .badge,
+.student-name-status-group .student-name-status {
+  max-width: 100%;
 }
 
 .student-name-status {
@@ -844,6 +880,33 @@ p, span { font-size: var(--fs-body); line-height: 1.55; }
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.student-inline-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.attendance-message-button {
+  flex: 1;
+  min-height: 42px;
+  border-radius: 999px;
+  border: 1.5px solid #c3def0;
+  background: var(--surface);
+  color: var(--primary);
+  font-size: var(--fs-small);
+  font-weight: 800;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.12s, transform 0.1s;
+}
+
+.attendance-message-button:active {
+  opacity: 0.85;
+  transform: scale(0.985);
 }
 
 .student-attendance-tick {

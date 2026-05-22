@@ -18,6 +18,7 @@ type PageState =
   | { key: "attendance"; classId: string }
   | { key: "leaveApplication" }
   | { key: "leaveHistory" }
+  | { key: "equipmentPacking" }
   | { key: "studentProfile"; studentId: string; classId: string }
   | { key: "transferStudent"; studentId: string; classId: string }
   | { key: "messageParent"; studentId?: string }
@@ -54,11 +55,17 @@ type CoachSessionRecord = {
   date: string;
   classId: string;
 };
+type EquipmentPackEntry = {
+  classId: string;
+  classItem: ClassItem;
+  student: StudentItem;
+  equipment: string[];
+};
 
 const navItems: Array<{ key: ScreenKey; label: string; icon: IconName }> = [
-  { key: "today", label: "Today", icon: "today" },
   { key: "classes", label: "Classes", icon: "classes" },
   { key: "coach", label: "Coach", icon: "coach" },
+  { key: "today", label: "Today", icon: "today" },
   { key: "inbox", label: "Inbox", icon: "inbox" },
   { key: "more", label: "More", icon: "more" },
 ];
@@ -174,6 +181,32 @@ function compareByDayAndTime(a: ClassItem, b: ClassItem) {
   const dayDelta = DAY_SEQUENCE.indexOf(a.dayLabel) - DAY_SEQUENCE.indexOf(b.dayLabel);
   if (dayDelta !== 0) return dayDelta;
   return toMinutes(getClassStartTime(a.time)) - toMinutes(getClassStartTime(b.time));
+}
+
+function compareByPoolDayAndTime(a: ClassItem, b: ClassItem) {
+  const poolDelta = a.pool.localeCompare(b.pool);
+  if (poolDelta !== 0) return poolDelta;
+  return compareByDayAndTime(a, b);
+}
+
+function getStudentEquipmentPack(student: StudentItem) {
+  return student.purchasedEquipment ?? [];
+}
+
+function buildEquipmentPackEntries() {
+  return classes
+    .slice()
+    .sort(compareByPoolDayAndTime)
+    .flatMap((classItem) =>
+      students
+        .filter((student) => classItem.studentIds.includes(student.id))
+        .map((student) => ({
+          classId: classItem.id,
+          classItem,
+          student,
+          equipment: getStudentEquipmentPack(student),
+        }))
+        .filter((entry) => entry.equipment.length > 0));
 }
 
 function Icon({ name, className = "icon", style }: { name: IconName; className?: string; style?: React.CSSProperties }) {
@@ -316,65 +349,116 @@ function StudentActivityCard({
   onOpenStudent: (id: string) => void;
   onOpenMessage: (id: string) => void;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  const hasEquipment = student.equipmentStatus !== "Not Required";
-  const hasPayIssue = student.paymentStatus !== "Paid" && student.paymentStatus !== "Trial";
-  const hasPauseIssue = student.pauseQuitStatus !== "None";
-  const flagCount = [hasEquipment, hasPayIssue, hasPauseIssue].filter(Boolean).length;
+  const expanded = true;
+  const [attendanceMarked, setAttendanceMarked] = useState<"present" | "absent">("absent");
+  const [assessmentMarkedReady, setAssessmentMarkedReady] = useState(false);
+  const [equipmentIssued, setEquipmentIssued] = useState(false);
+  const [parentCommentSubmitted, setParentCommentSubmitted] = useState(false);
+  const [sendToParent, setSendToParent] = useState(false);
+  const enrolmentStatus = formatEnrolmentStatus(student);
+  const paymentStatus = formatPaymentStatus(student.paymentStatus);
+  const showAssessmentCard = isAssessmentDue(student);
+  const showParentFollowUpCard = needsParentFollowUp(student);
+  const showEquipmentCard = needsEquipmentDistribution(student);
 
   return (
-    <article className="activity-student-card">
-      <button aria-expanded={expanded} className="student-card-toggle" onClick={() => setExpanded((v) => !v)} type="button">
-        <div>
-          <p className="eyebrow">{student.type}</p>
-          <h3>{student.name}</h3>
+    <article className="activity-student-card student-compact-row expanded">
+      <div className="student-compact-toggle">
+        <div className="student-row-summary">
+          <div>
+            <p className="eyebrow">{student.type}</p>
+            <h3 className="student-row-name">{student.name}</h3>
+            <div className="student-name-status-group">
+              <span className={`student-name-status ${enrolmentStatusTone(enrolmentStatus)}`}>{enrolmentStatus}</span>
+              {paymentStatus && <><span className="student-name-status" style={{ color: "var(--text-muted)" }}>·</span><span className={`student-name-status ${paymentStatusTone(paymentStatus)}`}>{paymentStatus}</span></>}
+            </div>
+          </div>
         </div>
-        <div className="student-card-toggle-right">
-          {flagCount > 0 && <Badge label={`${flagCount} flag${flagCount > 1 ? "s" : ""}`} tone="alert" />}
-          <Badge label={student.studentStatus} tone="blue" />
-          <Icon name="chevron" className={`chevron-icon${expanded ? " expanded" : ""}`} />
+        <div className="student-row-actions">
+          <button
+            aria-label={attendanceMarked === "present" ? `Mark ${student.name} absent` : `Mark ${student.name} present`}
+            aria-pressed={attendanceMarked === "present"}
+            className={`student-attendance-tick ${attendanceMarked === "present" ? "active" : ""}`}
+            onClick={() => setAttendanceMarked((current) => (current === "present" ? "absent" : "present"))}
+            type="button"
+          >
+            {attendanceMarked === "present" && <Icon name="check" />}
+          </button>
         </div>
-      </button>
-
-      <div className="attendance-chip-row">
-        <button className="attendance-tick active" type="button"><Icon name="check" /></button>
-        <button className="attendance-action" style={{ flex: 1 }} type="button">Absent</button>
       </div>
 
       {expanded && (
-        <>
-          <div className={hasEquipment ? "activity-grid" : ""}>
-            <div className="mini-info-card">
-              <div className="section-title-row" style={{ marginBottom: 4 }}>
-                <p className="eyebrow" style={{ margin: 0 }}>Test level</p>
-                <HelpTip text="The current SwimSafer or internal test level this student is working towards." />
+        <div className="student-compact-detail">
+          {showParentFollowUpCard && (
+            <div className="student-action-card">
+              <p className="eyebrow">Speak to parent</p>
+              <p className="student-action-copy">
+                Speak to parent about {student.pauseQuitStatus === "Pending Pause" ? "the pending pause request" : "the pending quit request"}.
+              </p>
+              <div className="student-comment-field">
+                <span className="student-comment-label">Coach comment</span>
+                <label className="send-to-parent-row">
+                  <input checked={sendToParent} onChange={(e) => setSendToParent(e.target.checked)} type="checkbox" />
+                  <span>Send comment to parent</span>
+                </label>
+                <textarea
+                  className="student-comment-input"
+                  placeholder={sendToParent ? "This comment will be saved to coach records and sent to the parent." : "Add notes for coach records only."}
+                  rows={3}
+                />
               </div>
-              <p style={{ fontSize: "var(--fs-small)" }}>{student.currentTestLevel}</p>
-              <button className="secondary-button full-width" onClick={() => onOpenStudent(student.id)} type="button">View</button>
+              {!parentCommentSubmitted ? (
+                <button className="success-button" onClick={() => setParentCommentSubmitted(true)} type="button">
+                  Spoken
+                </button>
+              ) : (
+                <p className="student-action-copy success-copy">
+                  Comment saved for coach records and sent to the admin portal.
+                </p>
+              )}
             </div>
-            {hasEquipment && (
-              <div className="mini-info-card">
-                <p className="eyebrow">Equipment</p>
-                <p style={{ fontSize: "var(--fs-small)" }}>{student.equipmentStatus}</p>
-                <button className="secondary-button full-width" type="button">Give Equipment</button>
-              </div>
-            )}
-          </div>
+          )}
 
-          <div className="mini-info-card">
+          {showAssessmentCard && (
+            <div className="student-action-card">
+              <p className="eyebrow">Assessment due</p>
+              <p className="student-action-copy">
+                {student.name} is due for assessment. Review readiness and update the parent after class.
+              </p>
+              <button className={`${assessmentMarkedReady ? "success-button" : "primary-button"} full-width`} onClick={() => setAssessmentMarkedReady((current) => !current)} type="button">
+                {assessmentMarkedReady ? "Ready" : "Yet to Assess"}
+              </button>
+            </div>
+          )}
+
+          {showEquipmentCard && (
+            <div className="student-action-card">
+              <p className="eyebrow">Distribute equipment</p>
+              <p className="student-action-copy">
+                Prepare and distribute: {student.equipmentStatus}.
+              </p>
+              <button className={`${equipmentIssued ? "success-button" : "secondary-button"} full-width`} onClick={() => setEquipmentIssued((current) => !current)} type="button">
+                {equipmentIssued ? "Issued" : "Yet to Issue"}
+              </button>
+            </div>
+          )}
+
+          <div className="student-action-card">
             <div className="section-title-row" style={{ marginBottom: 6 }}>
               <p className="eyebrow" style={{ margin: 0 }}>Needs attention</p>
               <HelpTip text="Items flagged by admin or parent that the coach should be aware of before or after class." />
             </div>
-            <p style={{ fontSize: "var(--fs-small)" }}>Payment: {student.paymentStatus}</p>
-            <p style={{ fontSize: "var(--fs-small)" }}>Pause/Quit: {student.pauseQuitStatus}</p>
-            <p style={{ fontSize: "var(--fs-small)" }}>Readiness: {student.readiness}</p>
-            <div className="button-row" style={{ marginTop: 8 }}>
-              <button className="secondary-button" onClick={() => onOpenMessage(student.id)} type="button">Message Parent</button>
-              <button className="secondary-button" onClick={() => onOpenStudent(student.id)} type="button">Update Readiness</button>
+            <p className="student-action-copy">Payment: {student.paymentStatus}</p>
+            <p className="student-action-copy">Pause/Quit: {student.pauseQuitStatus}</p>
+            <p className="student-action-copy">Readiness: {student.readiness}</p>
+            <div className="student-inline-actions" style={{ marginTop: 8 }}>
+              <button className="attendance-message-button" onClick={() => onOpenMessage(student.id)} type="button">Message Parent</button>
+              <button aria-label="Open student detail" className="student-detail-arrow" onClick={() => onOpenStudent(student.id)} type="button">
+                <Icon name="chevron" />
+              </button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </article>
   );
@@ -413,7 +497,7 @@ function CompactRosterRow({
   const paymentStatus = formatPaymentStatus(student.paymentStatus);
   const showAssessmentCard = isAssessmentDue(student);
   const showParentFollowUpCard = needsParentFollowUp(student);
-  const showEquipmentCard = needsEquipmentDistribution(student) && !equipmentIssued;
+  const showEquipmentCard = needsEquipmentDistribution(student);
   return (
     <div className={`student-compact-row ${expanded ? "expanded" : ""}`}>
       <div className="student-compact-toggle">
@@ -481,12 +565,9 @@ function CompactRosterRow({
               <p className="student-action-copy">
                 {student.name} is due for assessment. Review readiness and update the parent after class.
               </p>
-              {!assessmentMarkedReady && (
-                <div className="button-row">
-                  <button className="danger-button" type="button">Not ready</button>
-                  <button className="success-button" onClick={() => setAssessmentMarkedReady(true)} type="button">Ready</button>
-                </div>
-              )}
+              <button className={`${assessmentMarkedReady ? "success-button" : "primary-button"} full-width`} onClick={() => setAssessmentMarkedReady((current) => !current)} type="button">
+                {assessmentMarkedReady ? "Ready" : "Yet to Assess"}
+              </button>
             </div>
           )}
           {showEquipmentCard && (
@@ -495,10 +576,9 @@ function CompactRosterRow({
               <p className="student-action-copy">
                 Prepare and distribute: {student.equipmentStatus}.
               </p>
-              <div className="button-row">
-                <button className="danger-button" type="button">Not issued</button>
-                <button className="success-button" onClick={() => setEquipmentIssued(true)} type="button">Issued</button>
-              </div>
+              <button className={`${equipmentIssued ? "success-button" : "secondary-button"} full-width`} onClick={() => setEquipmentIssued((current) => !current)} type="button">
+                {equipmentIssued ? "Issued" : "Yet to Issue"}
+              </button>
             </div>
           )}
           {transferStatus && onCancelTransfer && (
@@ -843,6 +923,17 @@ function RootScreen({
           )}
         </article>
 
+        <article className="section-card">
+          <div className="section-title-row" style={{ marginBottom: 8 }}>
+            <p className="eyebrow" style={{ margin: 0 }}>Equipment packing</p>
+            <HelpTip text="Open the student-by-student pack list for goggles, swimcap, kickboard, and pullbuoy before classes start." />
+          </div>
+          <h3>Prepare equipment by class</h3>
+          <button className="primary-button full-width" onClick={() => openPage({ key: "equipmentPacking" })} type="button">
+            Pack list
+          </button>
+        </article>
+
       </div>
     );
   }
@@ -880,13 +971,15 @@ function RootScreen({
               </div>
               <h3>{item.title}</h3>
               <p style={{ fontSize: "var(--fs-small)", color: "var(--text-soft)" }}>{item.body}</p>
-              <button
-                className="secondary-button full-width"
-                onClick={() => openPage(item.variant === "alert" ? { key: "lightningAlert" } : { key: "adminRequest" })}
-                type="button"
-              >
-                Open detail
-              </button>
+              {item.meta.includes("Action Required") && (
+                <button
+                  className="secondary-button full-width"
+                  onClick={() => openPage(item.variant === "alert" ? { key: "lightningAlert" } : { key: "adminRequest" })}
+                  type="button"
+                >
+                  Open detail
+                </button>
+              )}
             </article>
           ))}
         </section>
@@ -908,13 +1001,15 @@ function RootScreen({
               />
               <h3>{item.title}</h3>
               <p style={{ fontSize: "var(--fs-small)", color: "var(--text-soft)" }}>{item.body}</p>
-              <button
-                className="secondary-button full-width"
-                onClick={() => openPage(item.variant === "alert" ? { key: "lightningAlert" } : { key: "adminRequest" })}
-                type="button"
-              >
-                Open detail
-              </button>
+              {item.meta.includes("Action Required") && (
+                <button
+                  className="secondary-button full-width"
+                  onClick={() => openPage(item.variant === "alert" ? { key: "lightningAlert" } : { key: "adminRequest" })}
+                  type="button"
+                >
+                  Open detail
+                </button>
+              )}
             </article>
           ))}
         </section>
@@ -1114,6 +1209,105 @@ function TransferScreen({
           Transfer
         </button>
       </div>
+    </>
+  );
+}
+
+function EquipmentPackingScreen() {
+  const equipmentEntries = useMemo(() => buildEquipmentPackEntries(), []);
+  const poolOptions = useMemo(() => ["All", ...Array.from(new Set(classes.map((item) => item.pool))).sort((a, b) => a.localeCompare(b))], []);
+  const dayOptions = useMemo(() => ["All", ...DAY_SEQUENCE.filter((dayLabel) => classes.some((item) => item.dayLabel === dayLabel))], []);
+  const timeOptions = useMemo(
+    () => ["All", ...Array.from(new Set(classes.map((item) => getClassStartTime(item.time)))).sort((a, b) => toMinutes(a) - toMinutes(b))],
+    [],
+  );
+  const [filters, setFilters] = useState<{ pool: string; day: string; time: string }>({ pool: "All", day: "All", time: "All" });
+  const [packedStudents, setPackedStudents] = useState<Record<string, boolean>>({});
+
+  const filteredEntries = useMemo(
+    () =>
+      equipmentEntries.filter(({ classItem }) =>
+        (filters.pool === "All" || classItem.pool === filters.pool)
+        && (filters.day === "All" || classItem.dayLabel === filters.day)
+        && (filters.time === "All" || getClassStartTime(classItem.time) === filters.time)),
+    [equipmentEntries, filters.day, filters.pool, filters.time],
+  );
+
+  const groupedEntries = useMemo(() => {
+    const grouped = new Map<string, { classItem: ClassItem; entries: EquipmentPackEntry[] }>();
+    filteredEntries.forEach((entry) => {
+      const existing = grouped.get(entry.classId);
+      if (existing) {
+        existing.entries.push(entry);
+      } else {
+        grouped.set(entry.classId, { classItem: entry.classItem, entries: [entry] });
+      }
+    });
+    return Array.from(grouped.values()).sort((a, b) => compareByPoolDayAndTime(a.classItem, b.classItem));
+  }, [filteredEntries]);
+
+  return (
+    <>
+      <article className="section-card schedule-overview-card">
+        <div className="section-header">
+          <div>
+            <div className="section-title-row">
+              <p className="eyebrow" style={{ margin: 0 }}>Filter</p>
+              <HelpTip text="Filter the equipment pack list by pool, day, and class start time before packing." />
+            </div>
+            <h3>Equipment Pack List</h3>
+          </div>
+        </div>
+        <FilterSelectGroup label="Pool" onSelect={(value) => setFilters((current) => ({ ...current, pool: value }))} options={poolOptions} selected={filters.pool} />
+        <FilterSelectGroup label="Day" onSelect={(value) => setFilters((current) => ({ ...current, day: value }))} options={dayOptions} selected={filters.day} />
+        <FilterSelectGroup label="Timeslot" onSelect={(value) => setFilters((current) => ({ ...current, time: value }))} options={timeOptions} selected={filters.time} />
+      </article>
+
+      {groupedEntries.map(({ classItem, entries }) => (
+        <article className="list-card" key={classItem.id}>
+          <div className="section-header">
+            <div>
+              <p className="eyebrow">{classItem.pool}</p>
+              <h3>{classItem.dayLabel} · {classItem.time}</h3>
+            </div>
+          </div>
+          <div className="equipment-pack-list">
+            {entries.map(({ student, equipment }) => (
+              <div className="mini-info-card" key={student.id}>
+                <div className="section-header">
+                  <div>
+                    <p className="eyebrow">{student.currentTestLevel}</p>
+                    <strong>{student.name}</strong>
+                  </div>
+                  <button
+                    aria-label={packedStudents[student.id] ? `Mark ${student.name} not packed` : `Mark ${student.name} packed`}
+                    aria-pressed={Boolean(packedStudents[student.id])}
+                    className={`student-attendance-tick ${packedStudents[student.id] ? "active" : ""}`}
+                    onClick={() => setPackedStudents((current) => ({ ...current, [student.id]: !current[student.id] }))}
+                    type="button"
+                  >
+                    {packedStudents[student.id] && <Icon name="check" />}
+                  </button>
+                </div>
+                <div className="equipment-chip-row">
+                  {equipment.map((item) => (
+                    <span className="equipment-chip" key={`${student.id}-${item}`}>{item}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </article>
+      ))}
+
+      {groupedEntries.length === 0 && (
+        <article className="list-card">
+          <p className="eyebrow">No students found</p>
+          <p style={{ fontSize: "var(--fs-small)", color: "var(--text-soft)" }}>
+            No equipment pack items match the selected pool, day, and timeslot filters.
+          </p>
+        </article>
+      )}
     </>
   );
 }
@@ -1471,15 +1665,6 @@ function PageView({
             student={student}
           />
         ))}
-
-        <article className="section-card">
-          <div className="section-title-row" style={{ marginBottom: 8 }}>
-            <p className="eyebrow" style={{ margin: 0 }}>Attendance summary</p>
-            <HelpTip text="Review the counts before submitting. You cannot change attendance once it is submitted." />
-          </div>
-          <p style={{ fontSize: "var(--fs-small)" }}>Present: 5 · Absent: 1</p>
-          <button className="primary-button full-width" type="button">Submit attendance</button>
-        </article>
       </>
     );
   }
@@ -1494,6 +1679,12 @@ function PageView({
     title = "Applied Leave";
     subtitle = "Coach records";
     content = <AppliedLeaveHistoryScreen leaveApplications={leaveApplications} onCancelLeave={onCancelLeave} />;
+  }
+
+  if (page.key === "equipmentPacking") {
+    title = "Equipment Packing";
+    subtitle = "Coach pack list";
+    content = <EquipmentPackingScreen />;
   }
 
   if (page.key === "studentProfile") {
@@ -1731,7 +1922,7 @@ function PageView({
 }
 
 function AppShell({
-  screen, setScreen, currentPage, openPage, goBack, fontScale, setFontScale, menuOpen, setMenuOpen, transferRequests, onSubmitTransfer, onCancelTransfer, classFilters, setClassFilters, lightningAlertActive, onTurnOffLightningAlert, onTurnOnLightningAlert, onOpenNextClass, onLogout, leaveApplications, onApplyLeave, onCancelLeave,
+  screen, setScreen, currentPage, openPage, goBack, fontScale, setFontScale, menuOpen, setMenuOpen, transferRequests, onSubmitTransfer, onCancelTransfer, classFilters, setClassFilters, lightningAlertActive, onTurnOffLightningAlert, onTurnOnLightningAlert, onOpenNextClass, onLogout, leaveApplications, onApplyLeave, onCancelLeave, onNavigateRoot,
 }: {
   screen: ScreenKey;
   setScreen: (s: ScreenKey) => void;
@@ -1755,6 +1946,7 @@ function AppShell({
   leaveApplications: LeaveApplication[];
   onApplyLeave: (application: LeaveApplication) => void;
   onCancelLeave: (id: string) => void;
+  onNavigateRoot: (screen: ScreenKey) => void;
 }) {
   return (
     <div className="app-shell">
@@ -1814,16 +2006,16 @@ function AppShell({
                 transferRequests={transferRequests}
               />
 
-              <nav className="bottom-nav" aria-label="Primary navigation">
-                {navItems.map((item) => (
-                  <button className={`nav-item ${screen === item.key ? "active" : ""}`} key={item.key} onClick={() => setScreen(item.key)} type="button">
-                    <Icon className="nav-icon" name={item.icon} />
-                    <span>{item.label}</span>
-                  </button>
-                ))}
-              </nav>
             </>
           )}
+          <nav className="bottom-nav" aria-label="Primary navigation">
+            {navItems.map((item) => (
+              <button className={`nav-item ${screen === item.key ? "active" : ""}`} key={item.key} onClick={() => onNavigateRoot(item.key)} type="button">
+                <Icon className="nav-icon" name={item.icon} />
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </nav>
           <Drawer
             onClose={() => setMenuOpen(false)}
             onLogout={onLogout}
@@ -1892,8 +2084,19 @@ function App() {
     setScreen("classes");
     setPageStack([]);
   };
+  const navigateRoot = (nextScreen: ScreenKey) => {
+    setMenuOpen(false);
+    setScreen(nextScreen);
+    setPageStack([]);
+  };
+  const login = () => {
+    setScreen("today");
+    setPageStack([]);
+    setMenuOpen(false);
+    setLoggedIn(true);
+  };
 
-  if (!loggedIn) return <LoginScreen onLogin={() => setLoggedIn(true)} />;
+  if (!loggedIn) return <LoginScreen onLogin={login} />;
 
   return (
     <AppShell
@@ -1909,6 +2112,7 @@ function App() {
       onCancelLeave={cancelLeave}
       onOpenNextClass={openNextClass}
       onLogout={logout}
+      onNavigateRoot={navigateRoot}
       onSubmitTransfer={submitTransfer}
       onTurnOffLightningAlert={() => setLightningAlertActive(false)}
       onTurnOnLightningAlert={() => setLightningAlertActive(true)}

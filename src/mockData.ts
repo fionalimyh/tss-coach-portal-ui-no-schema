@@ -35,6 +35,7 @@ export type StudentItem = {
   currentTestLevel: string;
   studentStatus: string;
   equipmentStatus: string;
+  purchasedEquipment?: string[];
   paymentStatus: string;
   pauseQuitStatus: string;
 };
@@ -128,7 +129,7 @@ export const classes: ClassItem[] = [
     dayKey: "sat",
     dayLabel: "Saturday",
     time: "11:15 AM - 12:00 PM",
-    pool: "Sheltered Waiting Area",
+    pool: "Bishan",
     level: "Mixed Stage 2",
     students: 8,
     attendance: "Ready",
@@ -165,6 +166,7 @@ export const students: StudentItem[] = [
     currentTestLevel: "SwimSafer Stage 2",
     studentStatus: "Active",
     equipmentStatus: "Swim Cap Pending",
+    purchasedEquipment: ["Goggles", "Pullbuoy"],
     paymentStatus: "Paid",
     pauseQuitStatus: "None",
   },
@@ -215,6 +217,7 @@ export const students: StudentItem[] = [
     currentTestLevel: "Trial Beginner",
     studentStatus: "Trial",
     equipmentStatus: "Goggles Pending",
+    purchasedEquipment: ["Goggles", "Swimcap", "Kickboard"],
     paymentStatus: "Trial",
     pauseQuitStatus: "None",
   },
@@ -307,10 +310,11 @@ export const students: StudentItem[] = [
     safety: "Needs extra encouragement at entry.",
     progress: [["Floating", "Improving"]],
     readiness: "On Track",
-    note: "Settles well after warm-up.",
+    note: "Settles well after warm-up. Coach should issue swim cap before class starts.",
     currentTestLevel: "SwimSafer Stage 1",
     studentStatus: "Active",
-    equipmentStatus: "Not Required",
+    equipmentStatus: "Swim Cap Pending",
+    purchasedEquipment: ["Swimcap", "Kickboard"],
     paymentStatus: "Paid",
     pauseQuitStatus: "None",
   },
@@ -328,12 +332,12 @@ export const students: StudentItem[] = [
     safety: "None reported.",
     progress: [["Water confidence", "Learning"]],
     readiness: "On Track",
-    note: "Doing well with short turns.",
+    note: "Parent asked to discuss a short pause after this month due to family travel.",
     currentTestLevel: "SwimSafer Stage 1",
     studentStatus: "Active",
     equipmentStatus: "Not Required",
     paymentStatus: "Paid",
-    pauseQuitStatus: "None",
+    pauseQuitStatus: "Pending Pause",
   },
   {
     id: "mei",
@@ -348,8 +352,8 @@ export const students: StudentItem[] = [
     parentPhone: "+65 9001 5541",
     safety: "None reported.",
     progress: [["Breathing control", "Improving"]],
-    readiness: "On Track",
-    note: "Steady progress each week.",
+    readiness: "Ready for Assessment",
+    note: "Steady progress each week. Suitable for a Stage 1 readiness check after class.",
     currentTestLevel: "SwimSafer Stage 1",
     studentStatus: "Active",
     equipmentStatus: "Not Required",
@@ -416,6 +420,7 @@ export const students: StudentItem[] = [
     currentTestLevel: "SwimSafer Stage 3",
     studentStatus: "Active",
     equipmentStatus: "Not Required",
+    purchasedEquipment: ["Goggles", "Pullbuoy"],
     paymentStatus: "Paid",
     pauseQuitStatus: "None",
   },
@@ -521,6 +526,7 @@ export const students: StudentItem[] = [
     currentTestLevel: "SwimSafer Stage 2",
     studentStatus: "Active",
     equipmentStatus: "Not Required",
+    purchasedEquipment: ["Goggles"],
     paymentStatus: "Paid",
     pauseQuitStatus: "None",
   },

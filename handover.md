@@ -12,13 +12,13 @@ All major navigation and core flows are implemented. TypeScript compiles clean �
 
 ### Navigation
 
-Bottom nav: **Today / Classes / Coach / Inbox / More**
+Bottom nav: **Classes / Coach / Today / Inbox / More**
 
 | Tab | Status |
 |---|---|
 | Today | ✅ Hero dashboard, lightning alert, next class, quick actions |
 | Classes | ✅ Schedule overview, filters, full drill-down to transfer |
-| Coach | ✅ Leave application (hero card), revenue, monthly attendance history |
+| Coach | ✅ Leave application (hero card), revenue, monthly attendance history, equipment packing |
 | Inbox | ✅ Unread / read notification cards |
 | More | ✅ Emergency/safety, admin request, text size setting |
 
@@ -73,6 +73,13 @@ Bottom nav: **Today / Classes / Coach / Inbox / More**
 - Shows 5 most recent months; `student-detail-arrow` chevron → full Attendance History page
 - "View all records" secondary button appears when > 5 months exist
 
+**Card 4 — Equipment Packing** (standard white `section-card`)
+- Sits below Coach Attendance History
+- Yellow `Pack list` button opens `equipmentPacking`
+- Packing list is filterable by Pool / Day / Timeslot
+- Student cards show explicit purchased equipment only
+- Pack state uses a right-side circle toggle: empty = not packed, green tick = packed
+
 ---
 
 ### Inbox Tab
@@ -110,6 +117,7 @@ All back-navigable. Page state managed as a stack in App root (`pageStack: PageS
 | `transferStudent` | Transfer form (pool / day / timeslot dropdowns) |
 | `leaveApplication` | Leave application form |
 | `leaveHistory` | Applied leave history (pending / upcoming / past) |
+| `equipmentPacking` | Filterable student-by-student equipment packing list |
 | `attendanceHistory` | All monthly attendance records |
 | `lightningAlert` | Lightning alert toggle + land drill mode |
 | `emergency` | Emergency / safety quick actions |
@@ -139,6 +147,9 @@ All back-navigable. Page state managed as a stack in App root (`pageStack: PageS
 | **Attendance chips** | Present / Absent only — Late removed |
 | **Compact roster attendance** | No unset state; students default to `absent`, checked circle means `present` |
 | **Compact roster control order** | Left `student-detail-arrow`, right `student-attendance-tick` |
+| **Attendance page action row** | `Message Parent` uses `--surface`; student-detail arrow moved beside it; `Update Readiness` removed |
+| **Attendance page header** | Alert flag badge removed; status labels shown inline |
+| **Equipment packing source** | Packing list is based on explicit `purchasedEquipment`, not assumed weekly issue |
 | **Equipment card conditional** | Only shown when `equipmentStatus !== "Not Required"` |
 | **Revenue rate** | `COACH_RATE_PER_STUDENT = 90` constant in App.tsx |
 
@@ -170,6 +181,7 @@ All back-navigable. Page state managed as a stack in App root (`pageStack: PageS
 - Expand stub screens: Progress Update submission, Test Readiness sign-off, Equipment issue with photo placeholder
 - Realistic per-class student rosters (currently each class has its own set of students in mock data; ensure class detail page only shows its assigned students)
 - Parent portal placeholder screen (referenced in transfer confirmation)
+- If needed, move `purchasedEquipment` from mock-only free text to a stricter enum/type model for backend integration
 
 ### Low priority / nice to have
 - Transition animations on attendance card expand/collapse
@@ -183,6 +195,7 @@ All back-navigable. Page state managed as a stack in App root (`pageStack: PageS
 - Headless browser automation (`playwright`) unavailable in this WSL2 environment. Manual review via `http://localhost:5173` required.
 - Revenue calculation is fixed at $90/student/session — actual rate logic (per hour, per level, contracted rate) needs clarification from business before backend implementation.
 - Attendance summary copy in the full attendance workspace is still static demo text and does not yet derive from the compact roster attendance map.
+- Equipment packing pack-state checkmarks are local UI state only and are not persisted across navigation or refresh.
 
 ---
 

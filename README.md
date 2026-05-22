@@ -46,7 +46,7 @@ Designed to be usable by coaches aged 50+ with large fonts, clear buttons, and m
 
 - **Minimal and clean** — flat cards, blue-tinted borders, 18px gap between cards
 - **HelpTip ("?")** — tap `?` beside any section header for a plain-language tooltip
-- **Bottom navigation** — 5 tabs always visible (Today / Classes / Coach / Inbox / More)
+- **Bottom navigation** — 5 tabs always visible (`Classes / Coach / Today / Inbox / More`)
 - **Hamburger drawer** — slides in from the left, contained inside the phone frame
 - **Login screen** — blue gradient panel with TSS logo image (`tss-logo.png`)
 - **Static login** — any email + password is accepted
@@ -67,7 +67,7 @@ Inside hero-themed cards, CSS custom properties are scoped locally so `var(--tex
 |---|---|
 | **Today** | Daily dashboard hero card, lightning alert banner, quick-action grid |
 | **Classes** | Schedule grouped by day, pool/day/timeslot filters, drill into class roster |
-| **Coach** | Leave application, revenue summary, monthly attendance history |
+| **Coach** | Leave application, revenue summary, monthly attendance history, equipment packing |
 | **Inbox** | Notification cards (unread / read) |
 | **More** | Emergency/safety, admin request form, text size setting |
 
@@ -93,10 +93,11 @@ Inside hero-themed cards, CSS custom properties are scoped locally so `var(--tex
 - Compact roster rows use a left-side detail arrow to open the student profile
 
 ### Coach (root tab)
-Three cards:
+Four cards:
 1. **Leave Application** (hero gradient) — Apply leave / View applied leave; amber buttons
 2. **Revenue** (white card) — Monthly + lifetime revenue at $90/student
 3. **Attendance History** (white card) — Month-on-month summary; 5 months shown; chevron arrow → full history page
+4. **Equipment Packing** (white card) — opens a filterable student-by-student pack list; yellow `Pack list` button
 
 ### Inbox (root tab)
 - Unread notifications with mark-as-read button
@@ -118,6 +119,7 @@ Three cards:
 | Leave Application Form | Coach → Apply here |
 | Applied Leave History | Coach → View applied leave |
 | Attendance History (all months) | Coach → attendance card chevron |
+| Equipment Packing | Coach → Pack list |
 | Lightning Alert | Today alert / topbar lightning icon |
 | Emergency / Safety | More → Open safety tools |
 | Admin Request | More / Today quick action |
@@ -146,6 +148,20 @@ Transfer state is lifted to the App root (`Record<string, TransferRequest>` keye
 - The right-side attendance circle toggles between two explicit states only: checked = `present`, empty = `absent`
 - `Mark All Present` sets every student in the class roster to `present`
 - The left-side arrow opens the student detail page without changing attendance
+- Attendance page student cards use the attendance circle in the top-right
+- Attendance page `Message Parent` uses a `--surface` button and the student-detail arrow sits to its right
+- Attendance page no longer shows the alert flag badge in the student header
+
+---
+
+## Equipment Packing
+
+- Coach page includes an `Equipment Packing` card below attendance history
+- `Pack list` opens a dedicated packing page with Pool, Day, and Timeslot filters
+- The packing list is sorted by pool, day, and time
+- Each student card shows the student's test level in the eyebrow
+- The right-side circle on each student card toggles packed state: empty = not packed, green tick = packed
+- The list only shows students with explicit `purchasedEquipment` in mock data
 
 ---
 
@@ -160,9 +176,9 @@ Sessions aggregated month-on-month via `buildMonthlyHistory()`:
 
 ## Mock Data Summary
 
-**5 classes** — Saturday × 3 (Bishan + Shelter), Sunday × 2 (Bishan + Sengkang)
+**5 classes** — Saturday × 3 (Bishan), Sunday × 2 (Bishan + Sengkang)
 
-**20 students** across all classes with varying: `studentStatus`, `paymentStatus`, `equipmentStatus`, `pauseQuitStatus`, `readiness`, `progress`
+**20 students** across all classes with varying: `studentStatus`, `paymentStatus`, `equipmentStatus`, `pauseQuitStatus`, `readiness`, `progress`, `purchasedEquipment`
 
 **8 coach sessions** across April–May 2026 for attendance history demo
 
