@@ -237,7 +237,7 @@ function Icon({ name, className = "icon", style }: { name: IconName; className?:
 function BrandMark() {
   return (
     <div className="brand-mark" aria-hidden="true">
-      <img alt="The Swim Starter Logo" className="brand-mark-image" src={tssLogo} />
+      <img alt="Lorem Logo" className="brand-mark-image" src={tssLogo} />
     </div>
   );
 }
@@ -1976,7 +1976,7 @@ function AppShell({
                 <div className="topbar-left">
                   <button className="icon-button" onClick={() => setMenuOpen(true)} type="button"><Icon name="menu" /></button>
                   <div>
-                    <p className="eyebrow">The Swim Starter</p>
+                    <p className="eyebrow">Lorem</p>
                     <h2 style={{ fontSize: "var(--fs-h3)" }}>
                       {screen === "today" ? "Today" : screen === "classes" ? "Classes" : screen === "coach" ? "Coach" : screen === "inbox" ? "Inbox" : "More"}
                     </h2>
