@@ -1,4 +1,4 @@
-# Swim Starter — Coach Portal UI Prototype
+# Lorem — Coach Portal UI Prototype
 
 A **mobile-first, frontend-only prototype** for the Swim Starter Coach Portal. Built with React + Vite + TypeScript. No backend, no real auth, no database.
 
