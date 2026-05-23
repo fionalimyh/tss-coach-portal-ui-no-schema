@@ -307,7 +307,7 @@ function Drawer({
           <div className="drawer-brand">
             <BrandMark />
             <div>
-              <p className="eyebrow">Swim Starter</p>
+              <p className="eyebrow">Lorem</p>
               <strong style={{ fontSize: "var(--fs-small)" }}>{coach.name}</strong>
             </div>
           </div>
